@@ -2,42 +2,28 @@ package com.syrol.lenos;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.webkit.JsResult;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import java.io.File;
 import java.net.URL;
 
@@ -45,11 +31,6 @@ public class MainActivity extends AppCompatActivity {
 
     WebView app;
     String appURL;
-
-    ProgressDialog progressDialog;
-    ProgressBar myProgress;
-    LinearLayout refreshCont;
-    Button refresh;
 
     private static final int FILECHOOSER_RESULTCODE = 1;
     private ValueCallback<Uri> mUploadMessage;
@@ -62,11 +43,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
 
-        appURL = "https://herb.ng?req=app";
-        refresh = findViewById(R.id.refresh);
-        myProgress =findViewById(R.id.myloader);
-
-        app =findViewById(R.id.webpage);
+        appURL = "https://lenos.com.ng?req=app";
+        app =findViewById(R.id.app);
         loadApp(savedInstanceState);
     }
 
@@ -90,21 +68,8 @@ public class MainActivity extends AppCompatActivity {
         app.setWebChromeClient(new WebChromeClient());
         app.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         app.clearCache(false);
-        progressDialog = new ProgressDialog(MainActivity.this);
-
         if (savedInstanceState != null) {
             app.restoreState(savedInstanceState);
-        }
-        else {
-            if (!isConnected()) {
-                startActivity(new Intent(getApplicationContext(), NetworkError.class).putExtra("page","network_error"));
-                finish();
-            } else {
-                progressDialog.setTitle("");
-                progressDialog.setMessage("Loading...");
-                progressDialog.show();
-                app.loadUrl(appURL);
-            }
         }
 
         app.setWebViewClient(new WebViewClient() {
@@ -169,15 +134,13 @@ public class MainActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
                 appURL = url;
                 app.setVisibility(View.VISIBLE);
-                myProgress.setVisibility(View.GONE);
-                progressDialog.hide();
             }
 
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (!isConnected()) {
-                    startActivity(new Intent(getApplicationContext(), NetworkError.class).putExtra("page","network_error"));
+                    startActivity(new Intent(getApplicationContext(), com.syrol.lenos.NetworkError.class).putExtra("page","network_error"));
                     finish();
                 } else {
                     app.loadUrl(url);
@@ -195,10 +158,6 @@ public class MainActivity extends AppCompatActivity {
                 if (!isConnected()) {
                     app.stopLoading();
                     app.setVisibility(View.INVISIBLE);
-                    refreshCont.setVisibility(View.VISIBLE);
-                    progressDialog.hide();
-                } else {
-                    myProgress.setVisibility(View.VISIBLE);
                 }
                 super.onProgressChanged(view, newProgress);
             }
@@ -392,7 +351,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (app.canGoBack()) {
-            myProgress.setVisibility(View.VISIBLE);
             app.goBack();
         } else {
             super.onBackPressed();
