@@ -23,12 +23,14 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import java.io.File;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
+    ProgressBar progressBar;
     WebView app;
     String appURL;
 
@@ -43,8 +45,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
 
-        appURL = "https://lenos.com.ng?req=app";
+        appURL = "https://lenos.com.ng/?req=app";
         app =findViewById(R.id.app);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         loadApp(savedInstanceState);
     }
 
@@ -70,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
         app.clearCache(false);
         if (savedInstanceState != null) {
             app.restoreState(savedInstanceState);
+        }else{
+            app.loadUrl(appURL);
         }
 
         app.setWebViewClient(new WebViewClient() {
@@ -133,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 appURL = url;
+                progressBar.setVisibility(View.INVISIBLE);
                 app.setVisibility(View.VISIBLE);
             }
 
