@@ -1,4 +1,4 @@
-package com.syrol.lenos;
+package syrol.lenos.com.ng;
 
 import androidx.appcompat.app.AppCompatActivity;
 

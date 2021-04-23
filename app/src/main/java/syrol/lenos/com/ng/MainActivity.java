@@ -1,4 +1,4 @@
-package com.syrol.lenos;
+package syrol.lenos.com.ng;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (!isConnected()) {
-                    startActivity(new Intent(getApplicationContext(), com.syrol.lenos.NetworkError.class).putExtra("page","network_error"));
+                    startActivity(new Intent(getApplicationContext(), syrol.lenos.com.ng.NetworkError.class).putExtra("page","network_error"));
                     finish();
                 } else {
                     app.loadUrl(url);

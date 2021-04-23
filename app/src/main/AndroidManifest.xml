@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.syrol.lenos">
+    package="syrol.lenos.com.ng">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -13,14 +13,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.White"
         android:usesCleartextTraffic="true">
-        <activity android:name="com.syrol.lenos.NetworkError"
+        <activity android:name="syrol.lenos.com.ng.NetworkError"
             android:screenOrientation="sensorPortrait"></activity>
-        <activity android:name="com.syrol.lenos.MainActivity"
+        <activity android:name="syrol.lenos.com.ng.MainActivity"
             android:screenOrientation="sensorPortrait"
             android:launchMode="singleInstance"
             android:theme="@style/Theme.Native"
             android:alwaysRetainTaskState="true"/>
-        <activity android:name="com.syrol.lenos.SpalshActivity"
+        <activity android:name="syrol.lenos.com.ng.SpalshActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/Theme.White">
             <intent-filter>
