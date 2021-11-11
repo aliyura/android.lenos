@@ -2,11 +2,16 @@ package syrol.lenos.com.ng;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -17,6 +22,7 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.webkit.JsResult;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -30,14 +36,16 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    ProgressBar progressBar;
-    WebView app;
-    String appURL;
-
+    private ProgressBar progressBar;
+    private WebView app;
+    private String appURL;
+    private String userAgent;
+    private static final int REQUEST_PHONE_CALL = 1;
     private static final int FILECHOOSER_RESULTCODE = 1;
     private ValueCallback<Uri> mUploadMessage;
     private ValueCallback<Uri[]> mUploadMessages;
     private Uri mCapturedImageURI = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,11 +56,11 @@ public class MainActivity extends AppCompatActivity {
         appURL = "https://lenos.com.ng/?req=app";
         app =findViewById(R.id.app);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        loadApp(savedInstanceState);
+        loadApp();
     }
 
     //    load
-    public void loadApp(Bundle savedInstanceState) {
+    public void loadApp() {
         WebSettings settings = app.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setAllowFileAccess(true);
@@ -66,16 +74,30 @@ public class MainActivity extends AppCompatActivity {
         settings.setUseWideViewPort(true);
         settings.setSupportZoom(false);
 
+        // Set User Agent
+        userAgent = System.getProperty("http.agent");
+        settings.setUserAgentString(userAgent + "Lenos Nigeria");
+
+        // Enable Cookies
+        CookieManager.getInstance().setAcceptCookie(true);
+        if(android.os.Build.VERSION.SDK_INT >= 21)
+            CookieManager.getInstance().setAcceptThirdPartyCookies(app, true);
+
+
+        app.getSettings().setEnableSmoothTransition(true);
+        app.getSettings().setUserAgentString(userAgent + "Lenos Nigeria");
+
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CALL_PHONE},REQUEST_PHONE_CALL);
+        }
+
         app.getSettings().setLoadWithOverviewMode(true);
         app.getSettings().setUseWideViewPort(true);
         app.setWebChromeClient(new WebChromeClient());
         app.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         app.clearCache(false);
-        if (savedInstanceState != null) {
-            app.restoreState(savedInstanceState);
-        }else{
-            app.loadUrl(appURL);
-        }
+        app.loadUrl(appURL);
+
 
         app.setWebViewClient(new WebViewClient() {
             @Override
@@ -91,7 +113,13 @@ public class MainActivity extends AppCompatActivity {
 
                 } else if (url.matches("(.*)tel:(.*)") || url.matches("(.*)callto:(.*)")) {
                     Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + url.replace("tel:", "").replace("callto:", "")));
-                    startActivity(intent);
+                    if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CALL_PHONE},REQUEST_PHONE_CALL);
+                    }
+                    else
+                    {
+                        startActivity(intent);
+                    }
                 } else if (url.matches("(.*)mailto:(.*)")) {
                     Intent intent = new Intent(Intent.ACTION_SENDTO);
                     intent.setData(Uri.parse("mailto:")); // only email apps should handle this
@@ -112,22 +140,25 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(
                             new Intent(Intent.ACTION_VIEW,
                                     Uri.parse(url)
-//                                Uri.parse(
-//                                        String.format("https://api.whatsapp.com/send?phone=%s&text=%s", phoneNumberWithCountryCode, message)
-//                                )
                             )
                     );
 
                 } else if (url.matches("(.*)tel:(.*)") || url.matches("(.*)callto:(.*)")) {
                     app.stopLoading();
                     Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + url.replace("tel:", "").replace("callto:", "")));
-                    startActivity(intent);
+                    if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CALL_PHONE},REQUEST_PHONE_CALL);
+                    }
+                    else
+                    {
+                        startActivity(intent);
+                    }
                 } else if (url.matches("(.*)mailto:(.*)")) {
                     app.stopLoading();
                     Intent intent = new Intent(Intent.ACTION_SENDTO);
                     intent.setData(Uri.parse("mailto:")); // only email apps should handle this
                     intent.putExtra(Intent.EXTRA_EMAIL, url.replace("mailto:", ""));
-                    intent.putExtra(Intent.EXTRA_SUBJECT, "Hello Herbs NG");
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "Hello Lenos Nigeria");
                     if (intent.resolveActivity(getPackageManager()) != null) {
                         startActivity(intent);
                     }

@@ -9,6 +9,8 @@
     android:theme="@style/Theme.Native"
     android:background="#fc4040"
     android:gravity="center">
+
+
     <ImageView
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
